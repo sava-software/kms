@@ -1,0 +1,18 @@
+dependencies {
+  implementation libs.bouncycastle
+  implementation libs.json.iterator
+  implementation libs.sava.core
+  implementation libs.sava.rpc
+  // https://mvnrepository.com/artifact/com.google.cloud/google-cloud-kms
+  implementation 'com.google.cloud:google-cloud-kms:2.57.0'
+
+}
+
+tasks.register('runKMS', JavaExec) {
+  classpath = sourceSets.main.runtimeClasspath
+  mainClass = 'software.sava.kms.google.GoogleKMSClient'
+  var args = project.findProperty('jvmArgs');
+  if (args != null) {
+    jvmArgs = List.of((args as String).split('\\s+'))
+  }
+}

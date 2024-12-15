@@ -1,0 +1,17 @@
+import software.sava.signing.SigningServiceFactory;
+
+module software.sava.google_kms {
+  requires systems.comodal.json_iterator;
+  requires software.sava.core;
+  requires software.sava.rpc;
+
+  requires com.google.protobuf;
+  requires google.cloud.kms;
+  requires proto.google.cloud.kms.v1;
+
+  exports software.sava.kms.google;
+
+  uses SigningServiceFactory;
+
+  provides SigningServiceFactory with GoogleKMSClientFactory;
+}
