@@ -25,11 +25,11 @@ final byte[] sig = signingService.sign("Hello World".getBytes(StandardCharsets.U
 
 ### Factory
 
-[GoogleKMSClientFactory]()
+[GoogleKMSClientFactory](https://github.com/sava-software/kms/blob/main/google_kms/src/main/java/software/sava/kms/google/GoogleKMSClientFactory.java#L16)
 
 #### Create directly
 
-```json
+```java
 GoogleKMSClientFactory.createService(
     Executors.newVirtualThreadPerTaskExecutor(),
     KeyManagementServiceClient.create(),
