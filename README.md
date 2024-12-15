@@ -5,15 +5,11 @@ Key Management Service clients for the purpose of signing Solana transactions.
 ## Load via Service Provider
 
 ```java
-final var jsonConfig = """
-    {
-      "encoding": "base64KeyPair",
-      "secret": "ASDF=="
-    }""";
+final var jsonConfig = ""; // See examples below.
 
-final var factoryClass = MemorySignerFactory.class;
+final var factoryClassName = "software.sava.kms.google.GoogleKMSClientFactory";
 final var serviceFactory = ServiceLoader.load(SigningServiceFactory.class).stream()
-    .filter(service -> service.type().equals(factoryClass))
+    .filter(service -> service.type().name().equals(factoryClassName))
     .findFirst().orElseThrow().get();
 
 final var signingService = serviceFactory.createService(executor, JsonIterator.parse(json));
@@ -37,7 +33,12 @@ final byte[] sig = signingService.sign("Hello World".getBytes(StandardCharsets.U
   "location": "global",
   "keyRing": "dev-keyring",
   "cryptoKey": "dev_key",
-  "cryptoKeyVersion": "1"
+  "cryptoKeyVersion": "1",
+  "capacity": {
+    "minCapacityDuration": "PT8S",
+    "maxCapacity": 300,
+    "resetDuration": "PT6S"
+  }
 }
 ```
 
