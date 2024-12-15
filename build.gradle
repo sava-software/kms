@@ -1,48 +1,37 @@
-buildscript {
-  repositories {
-    maven { url = 'https://plugins.gradle.org/m2/' }
-    mavenCentral()
+def getAppVersionUnchecked = { ->
+  if (project.hasProperty("noVersionTag")) {
+    return ''
   }
-  dependencies {
-    // https://plugins.gradle.org/plugin/org.beryx.jlink
-    classpath "org.beryx:badass-jlink-plugin:3.1.1"
+  try (final var gitTagOut = new ByteArrayOutputStream()) {
+    exec {
+      commandLine 'git', 'tag', '--points-at', 'HEAD'
+      standardOutput = gitTagOut
+    }
+    final var tagName = gitTagOut.toString().strip()
+    if (tagName.isBlank()) {
+      try (final var gitHashOut = new ByteArrayOutputStream()) {
+        exec {
+          commandLine 'git', 'rev-parse', '--short', 'HEAD'
+          standardOutput = gitHashOut
+        }
+        return 'git-' + gitHashOut.toString().strip()
+      }
+    } else {
+      return tagName
+    }
   }
-}
+} as Object
 
-//def getAppVersionUnchecked = { ->
-//  if (project.hasProperty("noVersionTag")) {
-//    return ''
-//  }
-//  try (final var gitTagOut = new ByteArrayOutputStream()) {
-//    exec {
-//      commandLine 'git', 'tag', '--points-at', 'HEAD'
-//      standardOutput = gitTagOut
-//    }
-//    final var tagName = gitTagOut.toString().strip()
-//    if (tagName.isBlank()) {
-//      try (final var gitHashOut = new ByteArrayOutputStream()) {
-//        exec {
-//          commandLine 'git', 'rev-parse', '--short', 'HEAD'
-//          standardOutput = gitHashOut
-//        }
-//        return 'git-' + gitHashOut.toString().strip()
-//      }
-//    } else {
-//      return tagName
-//    }
-//  }
-//} as Object
-//
-//def getAppVersion = { ->
-//  if (project.hasProperty("noVersionTag")) {
-//    return ''
-//  }
-//  return getAppVersionUnchecked()
-//} as Object
+def getAppVersion = { ->
+  if (project.hasProperty("noVersionTag")) {
+    return ''
+  }
+  return getAppVersionUnchecked()
+} as Object
 
 
 ext {
-  VERSION = '' // getAppVersion()
+  VERSION = getAppVersion()
   VCS_URL = 'https://github.com/sava-software/kms'
 }
 
