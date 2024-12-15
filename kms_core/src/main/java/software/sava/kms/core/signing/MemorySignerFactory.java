@@ -1,18 +1,23 @@
 package software.sava.kms.core.signing;
 
 import software.sava.rpc.json.PrivateKeyEncoding;
+import software.sava.services.core.request_capacity.trackers.ErrorTrackerFactory;
 import systems.comodal.jsoniter.JsonIterator;
 
 import java.util.concurrent.ExecutorService;
-import java.util.function.Predicate;
 
 public final class MemorySignerFactory implements SigningServiceFactory {
 
   @Override
   public SigningService createService(final ExecutorService executorService,
                                       final JsonIterator ji,
-                                      final Predicate<Throwable> errorTracker) {
+                                      final ErrorTrackerFactory<Throwable> errorTrackerFactory) {
     final var signer = PrivateKeyEncoding.fromJsonPrivateKey(ji);
     return new MemorySigner(signer);
+  }
+
+  @Override
+  public SigningService createService(final ExecutorService executorService, final JsonIterator ji) {
+    return createService(executorService, ji, null);
   }
 }

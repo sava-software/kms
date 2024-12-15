@@ -6,6 +6,8 @@ import com.google.cloud.kms.v1.KeyManagementServiceClient;
 import com.google.protobuf.ByteString;
 import software.sava.core.accounts.PublicKey;
 import software.sava.kms.core.signing.SigningService;
+import software.sava.services.core.request_capacity.CapacityMonitor;
+import software.sava.services.core.request_capacity.ErrorTrackedCapacityMonitor;
 
 import java.util.Base64;
 import java.util.concurrent.CompletableFuture;
@@ -17,15 +19,18 @@ final class GoogleKMSClient implements SigningService {
   private final ExecutorService executorService;
   private final KeyManagementServiceClient kmsClient;
   private final CryptoKeyVersionName keyVersionName;
+  private final ErrorTrackedCapacityMonitor<Throwable> capacityMonitor;
   private final Predicate<Throwable> errorTracker;
 
   GoogleKMSClient(final ExecutorService executorService,
                   final KeyManagementServiceClient kmsClient,
                   final CryptoKeyVersionName keyVersionName,
+                  final ErrorTrackedCapacityMonitor<Throwable> capacityMonitor,
                   final Predicate<Throwable> errorTracker) {
     this.executorService = executorService;
     this.kmsClient = kmsClient;
     this.keyVersionName = keyVersionName;
+    this.capacityMonitor = capacityMonitor;
     this.errorTracker = errorTracker;
   }
 
@@ -73,6 +78,11 @@ final class GoogleKMSClient implements SigningService {
   @Override
   public CompletableFuture<byte[]> sign(final byte[] msg) {
     return sign(ByteString.copyFrom(msg));
+  }
+
+  @Override
+  public CapacityMonitor capacityMonitor() {
+    return capacityMonitor;
   }
 
   @Override

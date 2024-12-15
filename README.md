@@ -5,13 +5,6 @@ Key Management Service clients for the purpose of signing Solana transactions.
 ## Load via Service Provider
 
 ```java
-final var capacityConfig = CapacityConfig.createSimpleConfig(
-    Duration.ofSeconds(8),
-    300,
-    Duration.ofSeconds(6)
-);
-final var capacityMonitor = capacityConfig.createMonitor("Google KMS", GoogleKMSErrorTrackerFactory.INSTANCE);
-
 final var jsonConfig = """
     {
       "encoding": "base64KeyPair",
@@ -23,7 +16,7 @@ final var serviceFactory = ServiceLoader.load(SigningServiceFactory.class).strea
     .filter(service -> service.type().equals(factoryClass))
     .findFirst().orElseThrow().get();
 
-final var signingService = serviceFactory.createService(executor, JsonIterator.parse(json), capacityMonitor.errorTracker());
+final var signingService = serviceFactory.createService(executor, JsonIterator.parse(json));
 
 final var base58PublicKey = signingService.publicKey().join();
 

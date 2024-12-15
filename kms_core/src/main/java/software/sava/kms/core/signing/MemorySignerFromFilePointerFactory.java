@@ -1,6 +1,7 @@
 package software.sava.kms.core.signing;
 
 import software.sava.rpc.json.PrivateKeyEncoding;
+import software.sava.services.core.request_capacity.trackers.ErrorTrackerFactory;
 import systems.comodal.jsoniter.FieldBufferPredicate;
 import systems.comodal.jsoniter.JsonIterator;
 
@@ -9,7 +10,6 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.ExecutorService;
-import java.util.function.Predicate;
 
 import static systems.comodal.jsoniter.JsonIterator.fieldEquals;
 
@@ -20,7 +20,7 @@ public final class MemorySignerFromFilePointerFactory implements SigningServiceF
   @Override
   public SigningService createService(final ExecutorService executorService,
                                       final JsonIterator ji,
-                                      final Predicate<Throwable> errorTracker) {
+                                      final ErrorTrackerFactory<Throwable> errorTrackerFactory) {
     ji.testObject(this);
     try (final var privateKeyJI = JsonIterator.parse(Files.readAllBytes(filePath))) {
       final var signer = PrivateKeyEncoding.fromJsonPrivateKey(privateKeyJI);
@@ -28,6 +28,11 @@ public final class MemorySignerFromFilePointerFactory implements SigningServiceF
     } catch (final IOException e) {
       throw new UncheckedIOException(e);
     }
+  }
+
+  @Override
+  public SigningService createService(final ExecutorService executorService, final JsonIterator ji) {
+    return createService(executorService, ji, null);
   }
 
   @Override
@@ -39,4 +44,5 @@ public final class MemorySignerFromFilePointerFactory implements SigningServiceF
     }
     return true;
   }
+
 }

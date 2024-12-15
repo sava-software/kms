@@ -2,6 +2,7 @@ package software.sava.kms.core.signing;
 
 import software.sava.core.accounts.PublicKey;
 import software.sava.core.accounts.Signer;
+import software.sava.services.core.request_capacity.CapacityMonitor;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -28,6 +29,11 @@ public final class MemorySigner implements SigningService {
   @Override
   public CompletableFuture<byte[]> sign(final byte[] msg) {
     return CompletableFuture.completedFuture(signer.sign(msg, 0, msg.length));
+  }
+
+  @Override
+  public CapacityMonitor capacityMonitor() {
+    return null;
   }
 
   @Override

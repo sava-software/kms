@@ -4,6 +4,9 @@ import com.google.cloud.kms.v1.CryptoKeyVersionName;
 import com.google.cloud.kms.v1.KeyManagementServiceClient;
 import software.sava.kms.core.signing.SigningService;
 import software.sava.kms.core.signing.SigningServiceFactory;
+import software.sava.services.core.request_capacity.CapacityConfig;
+import software.sava.services.core.request_capacity.ErrorTrackedCapacityMonitor;
+import software.sava.services.core.request_capacity.trackers.ErrorTrackerFactory;
 import systems.comodal.jsoniter.FieldBufferPredicate;
 import systems.comodal.jsoniter.JsonIterator;
 
@@ -17,6 +20,7 @@ import static systems.comodal.jsoniter.JsonIterator.fieldEquals;
 public final class GoogleKMSClientFactory implements SigningServiceFactory, FieldBufferPredicate {
 
   private CryptoKeyVersionName.Builder builder;
+  private CapacityConfig capacityConfig;
 
   public GoogleKMSClientFactory() {
   }
@@ -29,26 +33,47 @@ public final class GoogleKMSClientFactory implements SigningServiceFactory, Fiel
         executorService,
         kmsClient,
         keyVersionName,
+        null,
         errorTracker
+    );
+  }
+
+  public static SigningService createService(final ExecutorService executorService,
+                                             final KeyManagementServiceClient kmsClient,
+                                             final CryptoKeyVersionName keyVersionName,
+                                             final ErrorTrackedCapacityMonitor<Throwable> capacityMonitor) {
+    return new GoogleKMSClient(
+        executorService,
+        kmsClient,
+        keyVersionName,
+        capacityMonitor,
+        capacityMonitor.errorTracker()
     );
   }
 
   @Override
   public SigningService createService(final ExecutorService executorService,
                                       final JsonIterator ji,
-                                      final Predicate<Throwable> errorTracker) {
+                                      final ErrorTrackerFactory<Throwable> errorTrackerFactory) {
     this.builder = CryptoKeyVersionName.newBuilder();
     ji.testObject(this);
+    final var capacityMonitor = capacityConfig.createMonitor("Google KMS", errorTrackerFactory);
     try {
       return new GoogleKMSClient(
           executorService,
           KeyManagementServiceClient.create(),
           builder.build(),
-          errorTracker
+          capacityMonitor,
+          capacityMonitor.errorTracker()
       );
     } catch (final IOException e) {
       throw new UncheckedIOException(e);
     }
+  }
+
+  @Override
+  public SigningService createService(final ExecutorService executorService, final JsonIterator ji) {
+    return createService(executorService, ji, GoogleKMSErrorTrackerFactory.INSTANCE);
   }
 
   @Override
@@ -63,6 +88,8 @@ public final class GoogleKMSClientFactory implements SigningServiceFactory, Fiel
       builder.setCryptoKey(ji.readString());
     } else if (fieldEquals("cryptoKeyVersion", buf, offset, len)) {
       builder.setCryptoKeyVersion(ji.readNumberOrNumberString());
+    } else if (fieldEquals("capacity", buf, offset, len)) {
+      capacityConfig = CapacityConfig.parse(ji);
     } else {
       ji.skip();
     }

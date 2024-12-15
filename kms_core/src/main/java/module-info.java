@@ -1,7 +1,8 @@
 module kms.kms.core.main {
-  requires systems.comodal.json_iterator;
   requires software.sava.core;
   requires software.sava.rpc;
+  requires software.sava.core_services;
+  requires systems.comodal.json_iterator;
 
   exports software.sava.kms.core.signing;
 
