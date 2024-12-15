@@ -1,5 +1,6 @@
 rootProject.name = 'kms'
 
+include 'kms_core'
 include 'google_kms'
 
 def gprUser = providers.gradleProperty("gpr.user")
@@ -22,7 +23,7 @@ dependencyResolutionManagement {
   }
   versionCatalogs {
     libs {
-      from("software.sava:solana-version-catalog:0.3.29")
+      from("software.sava:solana-version-catalog:0.3.31")
     }
   }
 }

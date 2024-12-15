@@ -2,14 +2,15 @@ package software.sava.kms.google;
 
 import com.google.cloud.kms.v1.CryptoKeyVersionName;
 import com.google.cloud.kms.v1.KeyManagementServiceClient;
-import software.sava.signing.SigningService;
-import software.sava.signing.SigningServiceFactory;
+import software.sava.kms.core.signing.SigningService;
+import software.sava.kms.core.signing.SigningServiceFactory;
 import systems.comodal.jsoniter.FieldBufferPredicate;
 import systems.comodal.jsoniter.JsonIterator;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.concurrent.ExecutorService;
+import java.util.function.Predicate;
 
 import static systems.comodal.jsoniter.JsonIterator.fieldEquals;
 
@@ -22,23 +23,28 @@ public final class GoogleKMSClientFactory implements SigningServiceFactory, Fiel
 
   public static SigningService createService(final ExecutorService executorService,
                                              final KeyManagementServiceClient kmsClient,
-                                             final CryptoKeyVersionName keyVersionName) {
+                                             final CryptoKeyVersionName keyVersionName,
+                                             final Predicate<Throwable> errorTracker) {
     return new GoogleKMSClient(
         executorService,
         kmsClient,
-        keyVersionName
+        keyVersionName,
+        errorTracker
     );
   }
 
   @Override
-  public SigningService createService(final ExecutorService executorService, final JsonIterator ji) {
+  public SigningService createService(final ExecutorService executorService,
+                                      final JsonIterator ji,
+                                      final Predicate<Throwable> errorTracker) {
     this.builder = CryptoKeyVersionName.newBuilder();
     ji.testObject(this);
     try {
       return new GoogleKMSClient(
           executorService,
           KeyManagementServiceClient.create(),
-          builder.build()
+          builder.build(),
+          errorTracker
       );
     } catch (final IOException e) {
       throw new UncheckedIOException(e);

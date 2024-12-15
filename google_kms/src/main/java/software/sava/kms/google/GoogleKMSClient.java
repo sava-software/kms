@@ -5,24 +5,28 @@ import com.google.cloud.kms.v1.CryptoKeyVersionName;
 import com.google.cloud.kms.v1.KeyManagementServiceClient;
 import com.google.protobuf.ByteString;
 import software.sava.core.accounts.PublicKey;
-import software.sava.signing.SigningService;
+import software.sava.kms.core.signing.SigningService;
 
 import java.util.Base64;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
+import java.util.function.Predicate;
 
 final class GoogleKMSClient implements SigningService {
 
   private final ExecutorService executorService;
   private final KeyManagementServiceClient kmsClient;
   private final CryptoKeyVersionName keyVersionName;
+  private final Predicate<Throwable> errorTracker;
 
   GoogleKMSClient(final ExecutorService executorService,
                   final KeyManagementServiceClient kmsClient,
-                  final CryptoKeyVersionName keyVersionName) {
+                  final CryptoKeyVersionName keyVersionName,
+                  final Predicate<Throwable> errorTracker) {
     this.executorService = executorService;
     this.kmsClient = kmsClient;
     this.keyVersionName = keyVersionName;
+    this.errorTracker = errorTracker;
   }
 
   private static PublicKey parsePublicKeyFromPem(final String pem) {
@@ -36,19 +40,33 @@ final class GoogleKMSClient implements SigningService {
   @Override
   public CompletableFuture<PublicKey> publicKey() {
     return CompletableFuture.supplyAsync(() -> {
-      final var pemPublicKey = kmsClient.getPublicKey(keyVersionName);
-      return parsePublicKeyFromPem(pemPublicKey.getPem());
+      try {
+        final var pemPublicKey = kmsClient.getPublicKey(keyVersionName);
+        return parsePublicKeyFromPem(pemPublicKey.getPem());
+      } catch (final RuntimeException ex) {
+        if (errorTracker != null) {
+          errorTracker.test(ex);
+        }
+        throw ex;
+      }
     }, executorService);
   }
 
   private CompletableFuture<byte[]> sign(final ByteString msg) {
     return CompletableFuture.supplyAsync(() -> {
-      final var signRequest = AsymmetricSignRequest.newBuilder()
-          .setName(keyVersionName.toString())
-          .setData(msg)
-          .build();
-      final var result = kmsClient.asymmetricSign(signRequest);
-      return result.getSignature().toByteArray();
+      try {
+        final var signRequest = AsymmetricSignRequest.newBuilder()
+            .setName(keyVersionName.toString())
+            .setData(msg)
+            .build();
+        final var result = kmsClient.asymmetricSign(signRequest);
+        return result.getSignature().toByteArray();
+      } catch (final RuntimeException ex) {
+        if (errorTracker != null) {
+          errorTracker.test(ex);
+        }
+        throw ex;
+      }
     }, executorService);
   }
 

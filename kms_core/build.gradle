@@ -1,0 +1,5 @@
+dependencies {
+  implementation libs.json.iterator
+  implementation libs.sava.core
+  implementation libs.sava.rpc
+}
