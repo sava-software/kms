@@ -44,6 +44,8 @@ final byte[] sig = signingService.sign("Hello World".getBytes(StandardCharsets.U
 
 ## Local Disk to In Memory
 
+[Supported private key encodings.](https://github.com/sava-software/sava/blob/main/rpc/src/main/java/software/sava/rpc/json/PrivateKeyEncoding.java)
+
 ### Secret Factory
 
 [MemorySignerFactory](https://github.com/sava-software/kms/blob/main/kms_core/src/main/java/software/sava/kms/core/signing/MemorySignerFactory.java)
@@ -52,8 +54,9 @@ final byte[] sig = signingService.sign("Hello World".getBytes(StandardCharsets.U
 
 ```json
 {
+  "pubKey": "<PUB_KEY>",
   "encoding": "base64KeyPair",
-  "secret": "ASDF=="
+  "secret": "<BASE64_ENCODED_PUBLIC_PRIVATE_KEY_PAIR>"
 }
 ```
 
