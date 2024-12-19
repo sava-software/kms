@@ -9,4 +9,6 @@ module software.sava.kms_core {
   provides software.sava.kms.core.signing.SigningServiceFactory with
       software.sava.kms.core.signing.MemorySignerFactory,
       software.sava.kms.core.signing.MemorySignerFromFilePointerFactory;
+
+  uses software.sava.kms.core.signing.SigningServiceFactory;
 }
