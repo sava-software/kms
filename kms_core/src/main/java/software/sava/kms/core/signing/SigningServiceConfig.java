@@ -47,7 +47,7 @@ public record SigningServiceConfig(Backoff backoff, SigningService signingServic
           throw new IllegalStateException("Must configure a signing service factory class");
         }
         final int mark = ji.mark();
-        createService(executorService, ji);
+        createService(executorService, ji.reset(configMark));
         ji.reset(mark);
       }
 
@@ -58,7 +58,7 @@ public record SigningServiceConfig(Backoff backoff, SigningService signingServic
       final var serviceFactory = ServiceLoader.load(SigningServiceFactory.class).stream()
           .filter(service -> service.type().getName().equals(factoryClass))
           .findFirst().orElseThrow().get();
-      signingService = serviceFactory.createService(executorService, ji);
+      signingService = serviceFactory.createService(executorService, backoff, ji);
     }
 
     @Override
@@ -68,7 +68,7 @@ public record SigningServiceConfig(Backoff backoff, SigningService signingServic
       } else if (fieldEquals("factoryClass", buf, offset, len)) {
         factoryClass = ji.readString();
       } else if (fieldEquals("config", buf, offset, len)) {
-        if (factoryClass == null) {
+        if (factoryClass == null || backoff == null) {
           configMark = ji.mark();
         } else {
           createService(executorService, ji);

@@ -4,6 +4,7 @@ import com.google.cloud.kms.v1.CryptoKeyVersionName;
 import com.google.cloud.kms.v1.KeyManagementServiceClient;
 import software.sava.kms.core.signing.SigningService;
 import software.sava.kms.core.signing.SigningServiceFactory;
+import software.sava.services.core.remote.call.Backoff;
 import software.sava.services.core.request_capacity.CapacityConfig;
 import software.sava.services.core.request_capacity.ErrorTrackedCapacityMonitor;
 import software.sava.services.core.request_capacity.trackers.ErrorTrackerFactory;
@@ -26,11 +27,13 @@ public final class GoogleKMSClientFactory implements SigningServiceFactory, Fiel
   }
 
   public static SigningService createService(final ExecutorService executorService,
+                                             final Backoff backoff,
                                              final KeyManagementServiceClient kmsClient,
                                              final CryptoKeyVersionName keyVersionName,
                                              final Predicate<Throwable> errorTracker) {
     return new GoogleKMSClient(
         executorService,
+        backoff,
         kmsClient,
         keyVersionName,
         null,
@@ -39,11 +42,13 @@ public final class GoogleKMSClientFactory implements SigningServiceFactory, Fiel
   }
 
   public static SigningService createService(final ExecutorService executorService,
+                                             final Backoff backoff,
                                              final KeyManagementServiceClient kmsClient,
                                              final CryptoKeyVersionName keyVersionName,
                                              final ErrorTrackedCapacityMonitor<Throwable> capacityMonitor) {
     return new GoogleKMSClient(
         executorService,
+        backoff,
         kmsClient,
         keyVersionName,
         capacityMonitor,
@@ -53,6 +58,7 @@ public final class GoogleKMSClientFactory implements SigningServiceFactory, Fiel
 
   @Override
   public SigningService createService(final ExecutorService executorService,
+                                      final Backoff backoff,
                                       final JsonIterator ji,
                                       final ErrorTrackerFactory<Throwable> errorTrackerFactory) {
     this.builder = CryptoKeyVersionName.newBuilder();
@@ -61,6 +67,7 @@ public final class GoogleKMSClientFactory implements SigningServiceFactory, Fiel
     try {
       return new GoogleKMSClient(
           executorService,
+          backoff,
           KeyManagementServiceClient.create(),
           builder.build(),
           capacityMonitor,
@@ -72,8 +79,8 @@ public final class GoogleKMSClientFactory implements SigningServiceFactory, Fiel
   }
 
   @Override
-  public SigningService createService(final ExecutorService executorService, final JsonIterator ji) {
-    return createService(executorService, ji, GoogleKMSErrorTrackerFactory.INSTANCE);
+  public SigningService createService(final ExecutorService executorService, final Backoff backoff, final JsonIterator ji) {
+    return createService(executorService, backoff, ji, GoogleKMSErrorTrackerFactory.INSTANCE);
   }
 
   @Override

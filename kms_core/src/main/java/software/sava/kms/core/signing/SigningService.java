@@ -9,6 +9,8 @@ public interface SigningService extends AutoCloseable {
 
   CompletableFuture<PublicKey> publicKey();
 
+  CompletableFuture<PublicKey> publicKeyWithRetries();
+
   CompletableFuture<byte[]> sign(final byte[] msg, final int offset, final int length);
 
   CompletableFuture<byte[]> sign(final byte[] msg);
