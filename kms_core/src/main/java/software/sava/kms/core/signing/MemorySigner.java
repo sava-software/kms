@@ -22,6 +22,11 @@ public final class MemorySigner implements SigningService {
   }
 
   @Override
+  public CompletableFuture<PublicKey> publicKeyWithRetries() {
+    return publicKey();
+  }
+
+  @Override
   public CompletableFuture<byte[]> sign(final byte[] msg, final int offset, final int length) {
     return CompletableFuture.completedFuture(signer.sign(msg, offset, length));
   }
