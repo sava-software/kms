@@ -79,7 +79,7 @@ Should point to a file with the secret contents as shown above.
 ### Headers:
 
 * X-ENCODING:
-    * base58 [default]
+    * base58
     * base64
 
 ### Endpoints
@@ -87,12 +87,12 @@ Should point to a file with the secret contents as shown above.
 #### GET v0/publicKey
 
 * Response Headers:
-    * X-ENCODING
+    * X-ENCODING: Defaults to base58.
 
 ### POST v0/sign
 
 * Request Headers:
-    * X-ENCODING
+    * X-ENCODING: base64
 
 ### Factory
 

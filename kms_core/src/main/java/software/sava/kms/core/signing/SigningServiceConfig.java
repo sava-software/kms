@@ -14,9 +14,15 @@ import static systems.comodal.jsoniter.JsonIterator.fieldEquals;
 public record SigningServiceConfig(Backoff backoff, SigningService signingService) {
 
   public static SigningServiceConfig parseConfig(final ExecutorService executorService, final JsonIterator ji) {
+    return parseConfig(executorService, null, ji);
+  }
+
+  public static SigningServiceConfig parseConfig(final ExecutorService executorService,
+                                                 final Backoff defaultBackOff,
+                                                 final JsonIterator ji) {
     final var parser = new Parser(executorService);
     ji.testObject(parser);
-    return parser.createConfig(ji);
+    return parser.createConfig(defaultBackOff, ji);
   }
 
   public static SigningServiceConfig parseConfig(final JsonIterator ji) {
@@ -36,19 +42,21 @@ public record SigningServiceConfig(Backoff backoff, SigningService signingServic
       this.executorService = executorService;
     }
 
-    SigningServiceConfig createConfig(final JsonIterator ji) {
+    SigningServiceConfig createConfig(final Backoff defaultBackOff, final JsonIterator ji) {
       if (backoff == null) {
-        backoff = Backoff.exponential(1, 32);
+        backoff = defaultBackOff == null
+            ? Backoff.exponential(1, 32)
+            : defaultBackOff;
       }
       if (signingService == null) {
         if (configMark < 0) {
           throw new IllegalStateException("Must configure a signing service");
         } else if (factoryClass == null) {
           throw new IllegalStateException("Must configure a signing service factory class");
+        } else {
+          createService(executorService, ji.reset(configMark));
+          ji.skipRestOfObject();
         }
-        final int mark = ji.mark();
-        createService(executorService, ji.reset(configMark));
-        ji.reset(mark);
       }
 
       return new SigningServiceConfig(backoff, signingService);
@@ -74,7 +82,7 @@ public record SigningServiceConfig(Backoff backoff, SigningService signingServic
           createService(executorService, ji);
         }
       } else {
-        ji.skip();
+        throw new IllegalStateException("Unknown SigningServiceConfig field " + new String(buf, offset, len));
       }
       return true;
     }
