@@ -74,3 +74,39 @@ Should point to a file with the secret contents as shown above.
 }
 ```
 
+## HTTP KMS
+
+### Headers:
+
+* X-ENCODING:
+    * base58 [default]
+    * base64
+
+### Endpoints
+
+#### GET v0/publicKey
+
+* Response Headers:
+    * X-ENCODING
+
+### POST v0/sign
+
+* Request Headers:
+    * X-ENCODING
+
+### Factory
+
+[HttpKMSClientFactory](https://github.com/sava-software/kms/blob/main/http_kms/src/main/java/software/sava/http/google/HttpKMSClientFactory.java)
+
+#### JSON Config
+
+```json
+{
+  "endpoint": "https://api.signing.service/",
+  "capacity": {
+    "minCapacityDuration": "PT8S",
+    "maxCapacity": 300,
+    "resetDuration": "PT6S"
+  }
+}
+```
