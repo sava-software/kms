@@ -78,6 +78,7 @@ public record SigningServiceConfig(Backoff backoff, SigningService signingServic
       } else if (fieldEquals("config", buf, offset, len)) {
         if (factoryClass == null || backoff == null) {
           configMark = ji.mark();
+          ji.skip();
         } else {
           createService(executorService, ji);
         }
