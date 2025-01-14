@@ -72,7 +72,7 @@ public record SigningServiceConfig(Backoff backoff, SigningService signingServic
     @Override
     public boolean test(final char[] buf, final int offset, final int len, final JsonIterator ji) {
       if (fieldEquals("backoff", buf, offset, len)) {
-        backoff = BackoffConfig.parseConfig(ji).createHandler();
+        backoff = BackoffConfig.parseConfig(ji).createBackoff();
       } else if (fieldEquals("factoryClass", buf, offset, len)) {
         factoryClass = ji.readString();
       } else if (fieldEquals("config", buf, offset, len)) {

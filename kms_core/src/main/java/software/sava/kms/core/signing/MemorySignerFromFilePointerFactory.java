@@ -48,5 +48,4 @@ public final class MemorySignerFromFilePointerFactory implements SigningServiceF
     }
     return true;
   }
-
 }

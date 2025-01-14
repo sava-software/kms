@@ -52,6 +52,9 @@ final byte[] sig = signingService.sign("Hello World".getBytes(StandardCharsets.U
 
 #### JSON Config
 
+See [Sava Docs](https://github.com/sava-software/sava?tab=readme-ov-file#json-configuration) for all supported
+encodings.
+
 ```json
 {
   "pubKey": "<PUB_KEY>",
