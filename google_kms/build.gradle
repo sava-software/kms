@@ -3,7 +3,7 @@ dependencies {
   implementation libs.json.iterator
   implementation libs.sava.core
   implementation libs.sava.rpc
-  implementation libs.sava.core.services
+  implementation libs.sava.ravina.core
   implementation libs.google.cloud.kms
 }
 
