@@ -4,8 +4,12 @@ ext {
 }
 
 final JLV = JavaLanguageVersion.of(project.findProperty('javaVersion') as Integer ?: 23)
-final GPR_USER = project.findProperty("gpr.user") ?: System.getenv("GITHUB_ACTOR")
-final GPR_TOKEN = project.findProperty("gpr.token") ?: System.getenv("GITHUB_TOKEN")
+final GITHUB_ACTOR = System.getenv("GITHUB_ACTOR")
+final GITHUB_TOKEN = System.getenv("GITHUB_TOKEN")
+final READ_USER = GITHUB_ACTOR ?: project.findProperty("gpr.user")
+final READ_TOKEN = GITHUB_TOKEN ?: project.findProperty("gpr.token")
+final WRITE_USER = GITHUB_ACTOR ?: project.findProperty("gpr.user.write")
+final WRITE_TOKEN = GITHUB_TOKEN ?: project.findProperty("gpr.token.write")
 
 subprojects {
   apply plugin: 'java'
@@ -27,43 +31,43 @@ subprojects {
     maven {
       url = "https://maven.pkg.github.com/comodal/json-iterator"
       credentials {
-        username = GPR_USER
-        password = GPR_TOKEN
+        username = READ_USER
+        password = READ_TOKEN
       }
     }
     maven {
       url = "https://maven.pkg.github.com/sava-software/sava"
       credentials {
-        username = GPR_USER
-        password = GPR_TOKEN
+        username = READ_USER
+        password = READ_TOKEN
       }
     }
     maven {
       url = "https://maven.pkg.github.com/sava-software/solana-programs"
       credentials {
-        username = GPR_USER
-        password = GPR_TOKEN
+        username = READ_USER
+        password = READ_TOKEN
       }
     }
     maven {
       url = "https://maven.pkg.github.com/sava-software/anchor-src-gen"
       credentials {
-        username = GPR_USER
-        password = GPR_TOKEN
+        username = READ_USER
+        password = READ_TOKEN
       }
     }
     maven {
       url = "https://maven.pkg.github.com/sava-software/anchor-programs"
       credentials {
-        username = GPR_USER
-        password = GPR_TOKEN
+        username = READ_USER
+        password = READ_TOKEN
       }
     }
     maven {
       url = "https://maven.pkg.github.com/sava-software/ravina"
       credentials {
-        username = GPR_USER
-        password = GPR_TOKEN
+        username = READ_USER
+        password = READ_TOKEN
       }
     }
     mavenCentral()
@@ -139,8 +143,8 @@ subprojects {
         name = "GitHubPackages"
         url = "https://maven.pkg.github.com/sava-software/kms"
         credentials {
-          username = System.getenv("GITHUB_ACTOR") ?: project.findProperty("gpr.user.write")
-          password = System.getenv("GITHUB_TOKEN") ?: project.findProperty("gpr.token.write")
+          username = WRITE_USER
+          password = WRITE_TOKEN
         }
       }
     }

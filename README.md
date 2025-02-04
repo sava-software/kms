@@ -1,113 +1,33 @@
 # KMS
 
-Key Management Service clients for the purpose of signing Solana transactions.
+KMS clients for the purpose of isolating ed25519 private key signing
 
-## Load via Service Provider
+## Documentation
 
-```java
-final var jsonConfig = ""; // See examples below.
+User documentation lives at [sava.software](https://sava.software/).
 
-final var factoryClassName = "software.sava.kms.google.GoogleKMSClientFactory";
-final var serviceFactory = ServiceLoader.load(SigningServiceFactory.class).stream()
-    .filter(service -> service.type().name().equals(factoryClassName))
-    .findFirst().orElseThrow().get();
+* [Dependency Configuration](https://sava.software/quickstart)
+* [KMS](https://sava.software/libraries/kms)
 
-final var signingService = serviceFactory.createService(executor, JsonIterator.parse(json));
+## Contribution
 
-final var base58PublicKey = signingService.publicKey().join();
+Unit tests are needed and welcomed. Otherwise, please open a discussion, issue, or send an email before working on a
+pull request.
 
-final byte[] sig = signingService.sign("Hello World".getBytes(StandardCharsets.UTF_8)).join();
+## Build
+
+[Generate a classic token](https://github.com/settings/tokens) with the `read:packages` scope needed to access
+dependencies hosted on GitHub Package Repository.
+
+Create a `gradle.properties` file in the sava project directory root or under `$HOME/.gradle/`.
+
+### gradle.properties
+
+```properties
+gpr.user=GITHUB_USERNAME
+gpr.token=GITHUB_TOKEN
 ```
 
-## Google KMS
-
-### Factory
-
-[GoogleKMSClientFactory](https://github.com/sava-software/kms/blob/main/google_kms/src/main/java/software/sava/kms/google/GoogleKMSClientFactory.java#L16)
-
-#### JSON Config
-
-```json
-{
-  "project": "google-project-name",
-  "location": "global",
-  "keyRing": "dev-keyring",
-  "cryptoKey": "dev_key",
-  "cryptoKeyVersion": "1",
-  "capacity": {
-    "minCapacityDuration": "PT8S",
-    "maxCapacity": 300,
-    "resetDuration": "PT6S"
-  }
-}
-```
-
-## Local Disk to In Memory
-
-### Secret Factory
-
-[MemorySignerFactory](https://github.com/sava-software/kms/blob/main/kms_core/src/main/java/software/sava/kms/core/signing/MemorySignerFactory.java)
-
-#### JSON Config
-
-See [Sava Docs](https://github.com/sava-software/sava?tab=readme-ov-file#json-configuration) for all supported
-encodings.
-
-```json
-{
-  "pubKey": "<PUB_KEY>",
-  "encoding": "base64KeyPair",
-  "secret": "<BASE64_ENCODED_PUBLIC_PRIVATE_KEY_PAIR>"
-}
-```
-
-### File Pointer Factory
-
-Should point to a file with the secret contents as shown above.
-
-[MemorySignerFromFilePointerFactory](https://github.com/sava-software/kms/blob/main/kms_core/src/main/java/software/sava/kms/core/signing/MemorySignerFromFilePointerFactory.java)
-
-#### JSON Config
-
-```json
-{
-  "filePath": "/path/to/secret.json"
-}
-```
-
-## HTTP KMS
-
-### Headers:
-
-* X-ENCODING:
-    * base58
-    * base64
-
-### Endpoints
-
-#### GET v0/publicKey
-
-* Response Headers:
-    * X-ENCODING: Defaults to base58.
-
-### POST v0/sign
-
-* Request Headers:
-    * X-ENCODING: base64
-
-### Factory
-
-[HttpKMSClientFactory](https://github.com/sava-software/kms/blob/main/http_kms/src/main/java/software/sava/http/google/HttpKMSClientFactory.java)
-
-#### JSON Config
-
-```json
-{
-  "endpoint": "https://api.signing.service/",
-  "capacity": {
-    "minCapacityDuration": "PT8S",
-    "maxCapacity": 300,
-    "resetDuration": "PT6S"
-  }
-}
+```shell
+./gradlew check
 ```
