@@ -1,6 +1,6 @@
 # KMS
 
-KMS clients for the purpose of isolating ed25519 private key signing
+KMS clients for the purpose of isolating ed25519 private key signing.
 
 ## Documentation
 
