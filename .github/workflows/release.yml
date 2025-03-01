@@ -42,4 +42,5 @@ jobs:
           java --version
           ./gradlew --stacktrace --no-daemon -PjavaVersion=${{ vars.JAVA_VERSION }} -Pversion=${{ github.ref_name }} check :kms_core:publish :http_kms:publish :google_kms:publish
         env:
+          GITHUB_ACTOR: ${{ secrets.GITHUB_ACTOR }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

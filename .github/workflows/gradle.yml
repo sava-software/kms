@@ -42,4 +42,5 @@ jobs:
           java --version
           ./gradlew --stacktrace --no-daemon -PjavaVersion=${{ vars.JAVA_VERSION }} check
         env:
+          GITHUB_ACTOR: ${{ secrets.GITHUB_ACTOR }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
