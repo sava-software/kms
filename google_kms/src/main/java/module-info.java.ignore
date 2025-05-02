@@ -1,4 +1,5 @@
 import software.sava.kms.core.signing.SigningServiceFactory;
+import software.sava.kms.google.GoogleKMSClientFactory;
 
 module software.sava.google_kms {
 
